@@ -6,8 +6,8 @@ import 'package:sizer/sizer.dart';
 
 class EverythingArticle extends StatelessWidget {
   final Articles newsData;
-  const EverythingArticle(this.newsData, {Key? key}) : super(key: key);
-
+  EverythingArticle(this.newsData, {Key? key}) : super(key: key);
+  late DateTime date = DateTime.parse(newsData.publishedAt.toString());
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -66,7 +66,7 @@ class EverythingArticle extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(5.0),
                       child: Text(
-                        newsData.publishedAt.toString(),
+                        '${date.hour}:${date.minute} | ${date.day}-${date.month}-${date.year}',
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
