@@ -5,4 +5,5 @@ class Constants {
   static Color PRIMARY_COLOR = Colors.black;
   static Color TEXT_COLOR = Colors.white;
   static String API_KEY = 'a349274279c14e95b0db61535a938c20';
+  // static String API_KEY = '';
 }

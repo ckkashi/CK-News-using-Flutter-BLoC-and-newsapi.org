@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "578486952767",
+    "project_id": "ck-news-de1c6",
+    "storage_bucket": "ck-news-de1c6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:578486952767:android:e0bb2223342710ab45e98a",
+        "android_client_info": {
+          "package_name": "com.example.news_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "578486952767-6ainp8pgdkildludq626t2vmimovt898.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDC5i6JNJz0OQDOqK0UhoRnSYDTiY92tg4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "578486952767-6ainp8pgdkildludq626t2vmimovt898.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
