@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:news_app/constants.dart';
 import 'package:news_app/screens/favourite_news.dart';
 import 'package:news_app/screens/sign_in.dart';
 import 'package:news_app/screens/sign_up.dart';
+import 'package:news_app/screens/user_profile.dart';
 import 'package:news_app/services/Blocs/NewsBloc/news_bloc.dart';
 import 'package:news_app/services/Blocs/NewsBloc/news_events.dart';
 import 'package:news_app/services/Blocs/NewsBloc/news_states.dart';
@@ -38,8 +40,33 @@ class _HomeState extends State<Home> {
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
-  var drawerPages = [SignIn(), SignUp(), const FavouriteNews()];
+  var drawerPages = [SignIn(), SignUp(), FavouriteNews(), UserProfile()];
   int drawerIndex = -1;
+
+  bool userLoggedIn = false;
+
+  FirebaseAuth authInstance = FirebaseAuth.instance;
+  User? user;
+  Map<String, Object>? data;
+  String? username = 'Not signed in.';
+  String? email = '';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    authInstance.idTokenChanges().listen((User? user) {
+      if (user != null) {
+        setState(() {
+          userLoggedIn = true;
+          user = user;
+          data = {"dropDownValue": dropDownValue};
+          username = user!.displayName!;
+          email = user!.email!;
+        });
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,8 +147,8 @@ class _HomeState extends State<Home> {
   SafeArea customDrawer(BuildContext context) {
     return SafeArea(
       child: Container(
-        width: 80.w,
-        decoration: const BoxDecoration(
+        width: 70.w,
+        decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.only(
                 topRight: Radius.circular(8.0),
@@ -129,7 +156,7 @@ class _HomeState extends State<Home> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const UserAccountsDrawerHeader(
+            UserAccountsDrawerHeader(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
                     topRight: Radius.circular(7.0),
@@ -141,8 +168,8 @@ class _HomeState extends State<Home> {
                     opacity: 0.3,
                   ),
                 ),
-                accountName: Text('data'),
-                accountEmail: Text('data@mail.com')),
+                accountName: Text('$username'),
+                accountEmail: Text(email!)),
             ListTile(
               onTap: () {
                 setState(() {
@@ -156,53 +183,92 @@ class _HomeState extends State<Home> {
               leading: Icon(Icons.home_rounded),
               title: Text('Home'),
             ),
-            ListTile(
-              onTap: () {
-                setState(() {
-                  drawerIndex = 0;
-                });
-                Navigator.pop(context);
-              },
-              selected: drawerIndex == 0,
-              selectedColor: Colors.black,
-              style: ListTileStyle.list,
-              leading: Icon(Icons.login_rounded),
-              title: Text('Login'),
+            Visibility(
+              visible: !userLoggedIn,
+              child: ListTile(
+                onTap: () {
+                  setState(() {
+                    drawerIndex = 0;
+                  });
+                  Navigator.pop(context);
+                },
+                selected: drawerIndex == 0,
+                selectedColor: Colors.black,
+                style: ListTileStyle.list,
+                leading: Icon(Icons.login_rounded),
+                title: Text('Login'),
+              ),
             ),
-            ListTile(
-              onTap: () {
-                setState(() {
-                  drawerIndex = 1;
-                });
-                Navigator.pop(context);
-              },
-              selected: drawerIndex == 1,
-              selectedColor: Colors.black,
-              style: ListTileStyle.list,
-              leading: Icon(Icons.person_add_rounded),
-              title: Text('Register'),
+            Visibility(
+              visible: !userLoggedIn,
+              child: ListTile(
+                onTap: () {
+                  setState(() {
+                    drawerIndex = 1;
+                  });
+                  Navigator.pop(context);
+                },
+                selected: drawerIndex == 1,
+                selectedColor: Colors.black,
+                style: ListTileStyle.list,
+                leading: Icon(Icons.person_add_rounded),
+                title: Text('Register'),
+              ),
             ),
-            ListTile(
-              onTap: () {
-                setState(() {
-                  drawerIndex = 2;
-                });
-                Navigator.pop(context);
-              },
-              selected: drawerIndex == 2,
-              selectedColor: Colors.black,
-              style: ListTileStyle.list,
-              leading: Icon(Icons.favorite),
-              title: Text('Favourites'),
+            Visibility(
+              visible: userLoggedIn,
+              child: ListTile(
+                onTap: () {
+                  setState(() {
+                    drawerIndex = 3;
+                  });
+                  Navigator.pop(context);
+                },
+                selected: drawerIndex == 3,
+                selectedColor: Colors.black,
+                style: ListTileStyle.list,
+                leading: Icon(Icons.person_rounded),
+                title: Text('Profile'),
+              ),
             ),
-            ListTile(
-              onTap: () {
-                print('Logout');
-                Navigator.pop(context);
-              },
-              style: ListTileStyle.list,
-              leading: Icon(Icons.logout_rounded),
-              title: Text('Logout'),
+            Visibility(
+              visible: userLoggedIn,
+              child: ListTile(
+                onTap: () {
+                  setState(() {
+                    drawerIndex = 2;
+                  });
+                  Navigator.pop(context);
+                },
+                selected: drawerIndex == 2,
+                selectedColor: Colors.black,
+                style: ListTileStyle.list,
+                leading: Icon(Icons.favorite),
+                title: Text('Favourites'),
+              ),
+            ),
+            Visibility(
+              visible: userLoggedIn,
+              child: ListTile(
+                onTap: () async {
+                  await authInstance.signOut();
+                  authInstance.idTokenChanges().listen((User? user) {
+                    if (user == null) {
+                      setState(() {
+                        username = 'Not signed in.';
+                        email = '';
+                        userLoggedIn = false;
+                        drawerIndex = -1;
+                      });
+                    }
+                  });
+
+                  Navigator.pop(context);
+                },
+                style: ListTileStyle.list,
+                leading: Icon(Icons.logout_rounded),
+                title: Text('Logout'),
+              ),
             ),
           ],
         ),

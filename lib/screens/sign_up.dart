@@ -1,16 +1,45 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
 import 'package:sizer/sizer.dart';
 
-class SignUp extends StatelessWidget {
+class SignUp extends StatefulWidget {
   SignUp({Key? key}) : super(key: key);
 
+  @override
+  State<SignUp> createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
   TextEditingController usernameController = TextEditingController();
+
   TextEditingController emailController = TextEditingController();
+
   TextEditingController passController = TextEditingController();
 
   bool emailValidator(String email) =>
       RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$').hasMatch(email);
+
+  bool userLoggedIn = false;
+
+  FirebaseAuth authInstance = FirebaseAuth.instance;
+  bool loadingIn = false;
+
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+
+  // }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    usernameController.text = '';
+    emailController.text = '';
+    passController.text = '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,13 +129,71 @@ class SignUp extends StatelessWidget {
               dataField('Password', passController, true),
               SizedBox(height: 1.5.h),
               GestureDetector(
-                onTap: () {
-                  if (usernameController.text.length >= 3) {
-                    if (emailController.text.isNotEmpty &&
-                        emailValidator(emailController.text)) {
+                onTap: () async {
+                  String username = usernameController.text;
+                  String email = emailController.text;
+                  String password = passController.text;
+                  if (username.length >= 3) {
+                    if (email.isNotEmpty && emailValidator(email)) {
                       // print('email is valid');
-                      if (passController.text.length > 7) {
-                        // print('pass is valid');
+                      if (password.length > 7) {
+                        setState(() {
+                          loadingIn = true;
+                        });
+                        print('pass is valid');
+                        try {
+                          UserCredential credential =
+                              await authInstance.createUserWithEmailAndPassword(
+                            email: email,
+                            password: password,
+                          );
+                          print(credential.toString());
+                          User? user = credential.user;
+                          print(user.toString());
+                          await user!.updateDisplayName(username);
+                          print(user.toString());
+
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/connectivity', (route) => false);
+
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text('User successfully registered.'),
+                            backgroundColor: Colors.green,
+                          ));
+                          setState(() {
+                            loadingIn = false;
+                          });
+                          usernameController.text = '';
+                          emailController.text = '';
+                          passController.text = '';
+                        } on FirebaseAuthException catch (e) {
+                          if (e.code == 'weak-password') {
+                            print('The password provided is too weak.');
+                            setState(() {
+                              loadingIn = false;
+                            });
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content:
+                                  Text('Your password provided is too weak.'),
+                              backgroundColor: Colors.red,
+                            ));
+                          } else if (e.code == 'email-already-in-use') {
+                            print('The account already exists for that email.');
+                            setState(() {
+                              loadingIn = false;
+                            });
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(const SnackBar(
+                              content: Text(
+                                  'The account already exists for that email.'),
+                              backgroundColor: Colors.red,
+                            ));
+                          }
+                        } catch (e) {
+                          print({"error": e});
+                        }
                       } else {
                         ScaffoldMessenger.of(context)
                             .showSnackBar(const SnackBar(
@@ -132,11 +219,13 @@ class SignUp extends StatelessWidget {
                 child: CircleAvatar(
                   backgroundColor: Colors.black,
                   radius: 23.sp,
-                  child: Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    size: 20.sp,
-                    color: Colors.white,
-                  ),
+                  child: loadingIn
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 20.sp,
+                          color: Colors.white,
+                        ),
                 ),
               )
             ],

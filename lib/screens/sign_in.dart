@@ -1,12 +1,51 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_clippers/flutter_custom_clippers.dart';
+import 'package:news_app/screens/user_profile.dart';
 import 'package:sizer/sizer.dart';
 
-class SignIn extends StatelessWidget {
+class SignIn extends StatefulWidget {
   SignIn({Key? key}) : super(key: key);
 
+  @override
+  State<SignIn> createState() => _SignInState();
+}
+
+class _SignInState extends State<SignIn> {
   TextEditingController emailController = TextEditingController();
+
   TextEditingController passController = TextEditingController();
+
+  bool emailValidator(String email) =>
+      RegExp(r'^.+@[a-zA-Z]+\.{1}[a-zA-Z]+(\.{0,1}[a-zA-Z]+)$').hasMatch(email);
+
+  bool userLoggedIn = false;
+
+  FirebaseAuth authInstance = FirebaseAuth.instance;
+
+  bool loadingIn = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    authInstance = FirebaseAuth.instance;
+    authInstance.idTokenChanges().listen((User? user) {
+      if (user != null) {
+        setState(() {
+          userLoggedIn = true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    emailController.text = '';
+    passController.text = '';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,12 +102,12 @@ class SignIn extends StatelessWidget {
             ),
           ),
         ),
-        form(),
+        !userLoggedIn ? form(context) : UserProfile(),
       ],
     );
   }
 
-  Positioned form() {
+  Positioned form(BuildContext context) {
     return Positioned(
       top: 20.h,
       left: 0,
@@ -93,13 +132,89 @@ class SignIn extends StatelessWidget {
               SizedBox(height: 1.5.h),
               dataField('Password', passController, true),
               SizedBox(height: 1.5.h),
-              CircleAvatar(
-                backgroundColor: Colors.black,
-                radius: 23.sp,
-                child: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 20.sp,
-                  color: Colors.white,
+              GestureDetector(
+                onTap: () async {
+                  String email = emailController.text;
+                  String password = passController.text;
+                  if (email.isNotEmpty && emailValidator(email)) {
+                    // print('email is valid');
+                    if (password.length > 7) {
+                      print('pass is valid');
+                      setState(() {
+                        loadingIn = true;
+                      });
+                      try {
+                        var credential = await FirebaseAuth.instance
+                            .signInWithEmailAndPassword(
+                                email: email, password: password);
+                        print({"user": credential.user});
+                        await authInstance
+                            .idTokenChanges()
+                            .listen((User? user) {
+                          if (user != null) {
+                            setState(() {
+                              userLoggedIn = true;
+                            });
+                          }
+                        });
+                        Navigator.pushNamedAndRemoveUntil(
+                            context, '/connectivity', (route) => false);
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(const SnackBar(
+                          content: Text('User successfully logged in.'),
+                          backgroundColor: Colors.green,
+                        ));
+                        setState(() {
+                          loadingIn = false;
+                        });
+                      } on FirebaseAuthException catch (e) {
+                        if (e.code == 'user-not-found') {
+                          print('No user found for that email.');
+                          setState(() {
+                            loadingIn = false;
+                          });
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text('No user found for that email.'),
+                            backgroundColor: Colors.red,
+                          ));
+                        } else if (e.code == 'wrong-password') {
+                          print('Wrong password provided for that user.');
+                          setState(() {
+                            loadingIn = false;
+                          });
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content:
+                                Text('Wrong password provided for that user.'),
+                            backgroundColor: Colors.red,
+                          ));
+                        }
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text(
+                            'Please enter password of atleast 8 or more character'),
+                        backgroundColor: Colors.red,
+                      ));
+                    }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('Please enter valid email address'),
+                      backgroundColor: Colors.red,
+                    ));
+                  }
+                },
+                child: CircleAvatar(
+                  backgroundColor: Colors.black,
+                  radius: 23.sp,
+                  child: loadingIn
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 20.sp,
+                          color: Colors.white,
+                        ),
                 ),
               )
             ],
