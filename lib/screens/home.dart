@@ -38,7 +38,7 @@ class _HomeState extends State<Home> {
 
   final GlobalKey<ScaffoldState> _key = GlobalKey();
 
-  var drawerPages = [const SignIn(), const SignUp(), const FavouriteNews()];
+  var drawerPages = [SignIn(), SignUp(), const FavouriteNews()];
   int drawerIndex = -1;
 
   @override
@@ -145,10 +145,10 @@ class _HomeState extends State<Home> {
                 accountEmail: Text('data@mail.com')),
             ListTile(
               onTap: () {
-                Navigator.pop(context);
                 setState(() {
                   drawerIndex = -1;
                 });
+                Navigator.pop(context);
               },
               selected: drawerIndex == -1,
               selectedColor: Colors.black,
@@ -158,10 +158,10 @@ class _HomeState extends State<Home> {
             ),
             ListTile(
               onTap: () {
-                Navigator.pop(context);
                 setState(() {
                   drawerIndex = 0;
                 });
+                Navigator.pop(context);
               },
               selected: drawerIndex == 0,
               selectedColor: Colors.black,
@@ -171,10 +171,10 @@ class _HomeState extends State<Home> {
             ),
             ListTile(
               onTap: () {
-                Navigator.pop(context);
                 setState(() {
                   drawerIndex = 1;
                 });
+                Navigator.pop(context);
               },
               selected: drawerIndex == 1,
               selectedColor: Colors.black,
@@ -184,10 +184,10 @@ class _HomeState extends State<Home> {
             ),
             ListTile(
               onTap: () {
-                Navigator.pop(context);
                 setState(() {
                   drawerIndex = 2;
                 });
+                Navigator.pop(context);
               },
               selected: drawerIndex == 2,
               selectedColor: Colors.black,
@@ -197,8 +197,8 @@ class _HomeState extends State<Home> {
             ),
             ListTile(
               onTap: () {
-                Navigator.pop(context);
                 print('Logout');
+                Navigator.pop(context);
               },
               style: ListTileStyle.list,
               leading: Icon(Icons.logout_rounded),
