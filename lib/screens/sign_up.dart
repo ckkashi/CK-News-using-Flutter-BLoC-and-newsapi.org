@@ -149,9 +149,9 @@ class _SignUpState extends State<SignUp> {
                           );
                           print(credential.toString());
                           User? user = credential.user;
-                          print(user.toString());
+                          // print(user.toString());
                           await user!.updateDisplayName(username);
-                          print(user.toString());
+                          // print(user.toString());///
 
                           Navigator.pushNamedAndRemoveUntil(
                               context, '/connectivity', (route) => false);

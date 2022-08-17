@@ -46,23 +46,24 @@ class _HomeState extends State<Home> {
   bool userLoggedIn = false;
 
   FirebaseAuth authInstance = FirebaseAuth.instance;
-  User? user;
-  Map<String, Object>? data;
+  User? userr;
   String? username = 'Not signed in.';
   String? email = '';
+  String? profileImgUrl = '';
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    authInstance = FirebaseAuth.instance;
     authInstance.idTokenChanges().listen((User? user) {
       if (user != null) {
         setState(() {
           userLoggedIn = true;
-          user = user;
-          data = {"dropDownValue": dropDownValue};
-          username = user!.displayName!;
-          email = user!.email!;
+          userr = user;
+          username = userr!.displayName!;
+          email = userr!.email!;
+          profileImgUrl = userr!.photoURL;
         });
       }
     });
@@ -168,7 +169,22 @@ class _HomeState extends State<Home> {
                     opacity: 0.3,
                   ),
                 ),
-                accountName: Text('$username'),
+                currentAccountPicture: CircleAvatar(
+                  radius: 20.w,
+                  child: profileImgUrl == null
+                      ? Icon(
+                          Icons.person_off_sharp,
+                          color: Colors.black,
+                          size: 30.sp,
+                        )
+                      : Image.network('$profileImgUrl'),
+                  foregroundImage: profileImgUrl == null || profileImgUrl == ''
+                      ? NetworkImage(
+                          'https://www.brookes.ac.uk/assets/0/1425/1426/2147484565/b4ba6acc-f7ff-4a13-9f21-0e83f8c3c9e3.png')
+                      : NetworkImage(profileImgUrl.toString()),
+                  backgroundColor: Colors.white,
+                ),
+                accountName: Text(username!),
                 accountEmail: Text(email!)),
             ListTile(
               onTap: () {

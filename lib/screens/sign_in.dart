@@ -25,19 +25,19 @@ class _SignInState extends State<SignIn> {
 
   bool loadingIn = false;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    authInstance = FirebaseAuth.instance;
-    authInstance.idTokenChanges().listen((User? user) {
-      if (user != null) {
-        setState(() {
-          userLoggedIn = true;
-        });
-      }
-    });
-  }
+  // @override
+  // void initState() {
+  //   // TODO: implement initState
+  //   super.initState();
+  //   authInstance = FirebaseAuth.instance;
+  //   authInstance.idTokenChanges().listen((User? user) {
+  //     if (user != null) {
+  //       setState(() {
+  //         userLoggedIn = true;
+  //       });
+  //     }
+  //   });
+  // }
 
   @override
   void dispose() {
