@@ -43,6 +43,10 @@ class _HomeState extends State<Home> {
   var drawerPages = [SignIn(), SignUp(), FavouriteNews(), UserProfile()];
   int drawerIndex = -1;
 
+  void changeUsername(String newUsername) {
+    username = newUsername;
+  }
+
   bool userLoggedIn = false;
 
   FirebaseAuth authInstance = FirebaseAuth.instance;

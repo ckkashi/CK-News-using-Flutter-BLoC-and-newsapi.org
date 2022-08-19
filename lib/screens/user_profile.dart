@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:news_app/screens/home.dart';
 import 'package:sizer/sizer.dart';
 
 class UserProfile extends StatefulWidget {
@@ -13,17 +14,27 @@ class _UserProfileState extends State<UserProfile> {
   bool swtichVal = false;
 
   TextEditingController usernameController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-
-  void updateUsername() {
-    print('updating username');
-  }
-
-  void updatePhone() {
-    print('updating phone no');
-  }
+  TextEditingController emailController = TextEditingController();
 
   FirebaseAuth authInstance = FirebaseAuth.instance;
+
+  void updateUsername() async {
+    String username = usernameController.text;
+    if (username.length > 3) {
+      await authInstance.currentUser!.updateDisplayName(username);
+      usernameController.text = authInstance.currentUser!.displayName!;
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Username successfully updated.'),
+        backgroundColor: Colors.green,
+      ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Please enter username of atleast 3 or more character.'),
+        backgroundColor: Colors.red,
+      ));
+    }
+  }
 
   @override
   void initState() {
@@ -34,7 +45,7 @@ class _UserProfileState extends State<UserProfile> {
       if (user != null) {
         setState(() {
           usernameController.text = user.displayName!;
-          phoneController.text = user.phoneNumber!;
+          emailController.text = user.email!;
         });
       }
     });
@@ -88,7 +99,9 @@ class _UserProfileState extends State<UserProfile> {
           ),
           dataField('Username', usernameController, false, updateUsername),
           SizedBox(height: 1.5.h),
-          dataField('Phone no', phoneController, false, updatePhone)
+          Visibility(
+              visible: !swtichVal,
+              child: dataField('E-mail', emailController, false, () {}))
         ],
       ),
     );
