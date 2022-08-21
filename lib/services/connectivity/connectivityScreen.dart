@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app/screens/home.dart';
+import 'package:news_app/services/Blocs/AuthBloc/auth_bloc.dart';
 import 'package:news_app/services/connectivity/bloc/connectivity_bloc.dart';
 import 'package:news_app/services/connectivity/bloc/connectivity_states.dart';
 
@@ -28,9 +29,12 @@ class ConnectivityScreen extends StatelessWidget {
                 ));
               }
             },
-            child: BlocProvider(
-              create: (context) => NewsBloc(),
-              child: Home(),
+            child: BlocProvider<AuthBloc>(
+              create: (context) => AuthBloc(),
+              child: BlocProvider(
+                create: (context) => NewsBloc(),
+                child: Home(),
+              ),
             )),
       ),
     );
