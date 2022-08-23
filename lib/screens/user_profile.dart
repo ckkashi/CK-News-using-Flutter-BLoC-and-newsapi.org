@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:news_app/screens/home.dart';
 import 'package:sizer/sizer.dart';
 
@@ -15,6 +16,8 @@ class _UserProfileState extends State<UserProfile> {
 
   TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController dobController = TextEditingController();
 
   FirebaseAuth authInstance = FirebaseAuth.instance;
 
@@ -101,7 +104,12 @@ class _UserProfileState extends State<UserProfile> {
           SizedBox(height: 1.5.h),
           Visibility(
               visible: !swtichVal,
-              child: dataField('E-mail', emailController, false, () {}))
+              child: Column(
+                children: [
+                  dataField('E-mail', emailController, false, () {}),
+                  SizedBox(height: 1.5.h),
+                ],
+              )),
         ],
       ),
     );
@@ -122,6 +130,50 @@ class _UserProfileState extends State<UserProfile> {
           obscureText: password,
           cursorColor: Colors.black,
           cursorHeight: 18.sp,
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 18.sp,
+          ),
+          decoration: InputDecoration(
+              suffixIcon: IconButton(
+                  onPressed: () {
+                    func();
+                  },
+                  icon: Icon(
+                    Icons.arrow_circle_right_outlined,
+                    color: Colors.black,
+                  )),
+              border: InputBorder.none,
+              hintText: 'Update $fieldName',
+              hintStyle: TextStyle(
+                  color: Colors.black54,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w500)),
+        ),
+      ),
+    );
+  }
+
+  //number field
+  Container numberField(String fieldName, TextEditingController controller,
+      bool password, void func()) {
+    return Container(
+      width: 90.w,
+      decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(5.0)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+        child: TextFormField(
+          enabled: swtichVal,
+          controller: controller,
+          obscureText: password,
+          cursorColor: Colors.black,
+          cursorHeight: 18.sp,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+          ],
           style: TextStyle(
             color: Colors.black,
             fontSize: 18.sp,
