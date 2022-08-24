@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:news_app/Model/NewsEverythingModel.dart';
-import 'package:news_app/Model/NewsModel.dart';
-import 'package:news_app/components/everytingDetailArticle.dart';
+import 'package:news_app/components/favDetailArticle.dart';
+
 import 'package:sizer/sizer.dart';
 
-class EverythingArticle extends StatelessWidget {
+class FavArticle extends StatelessWidget {
   final newsData;
-  EverythingArticle(this.newsData, {Key? key}) : super(key: key);
-  late DateTime date = DateTime.parse(newsData.publishedAt.toString());
+  final newsID;
+  FavArticle(this.newsData, this.newsID, {Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -15,7 +15,7 @@ class EverythingArticle extends StatelessWidget {
         Navigator.push(
             context,
             MaterialPageRoute(
-                builder: ((context) => EverythingDetailArticle(newsData))));
+                builder: ((context) => FavDetailArticle(newsData, newsID))));
       },
       child: Container(
         width: 95.w,
@@ -24,7 +24,7 @@ class EverythingArticle extends StatelessWidget {
             borderRadius: BorderRadius.circular(4.sp),
             color: Colors.white,
             image: DecorationImage(
-              image: NetworkImage(newsData.urlToImage.toString()),
+              image: NetworkImage(newsData['urlToImage']),
               fit: BoxFit.cover,
               opacity: 0.8,
             ),
@@ -45,35 +45,15 @@ class EverythingArticle extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      newsData.title.toString(),
+                      newsData['title'].toString(),
                       style: TextStyle(color: Colors.white, fontSize: 15.sp),
                     ),
                   ),
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(4.0)),
                     color: Colors.black,
                   )),
             ),
-            Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4.sp),
-                      color: Colors.black,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(5.0),
-                      child: Text(
-                        '${date.hour}:${date.minute} | ${date.day}-${date.month}-${date.year}',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )
           ],
         ),
       ),

@@ -5,16 +5,16 @@ import 'package:news_app/Model/NewsEverythingModel.dart';
 import 'package:news_app/Model/NewsModel.dart';
 import 'package:sizer/sizer.dart';
 
-class EverythingDetailArticle extends StatefulWidget {
+class FavDetailArticle extends StatefulWidget {
   final newsData;
-  EverythingDetailArticle(this.newsData, {Key? key}) : super(key: key);
+  final newsID;
+  FavDetailArticle(this.newsData, this.newsID, {Key? key}) : super(key: key);
 
   @override
-  State<EverythingDetailArticle> createState() =>
-      _EverythingDetailArticleState();
+  State<FavDetailArticle> createState() => _FavDetailArticleState();
 }
 
-class _EverythingDetailArticleState extends State<EverythingDetailArticle> {
+class _FavDetailArticleState extends State<FavDetailArticle> {
   FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
   FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
@@ -78,8 +78,7 @@ class _EverythingDetailArticleState extends State<EverythingDetailArticle> {
                       ),
                       color: Colors.white,
                       image: DecorationImage(
-                        image:
-                            NetworkImage(widget.newsData.urlToImage.toString()),
+                        image: NetworkImage(widget.newsData['urlToImage']),
                         fit: BoxFit.cover,
                         opacity: 0.8,
                       ),
@@ -128,52 +127,17 @@ class _EverythingDetailArticleState extends State<EverythingDetailArticle> {
 
                                     if (userAvail == true) {
                                       try {
-                                        bool dataAvail =
-                                            await checkNewsAlreadyExist(
-                                                firebaseAuth.currentUser!.uid,
-                                                widget.newsData.title
-                                                    .toString());
-
-                                        if (!dataAvail) {
-                                          CollectionReference favNewsRef =
-                                              firebaseFirestore
-                                                  .collection('usersFavPosts');
-                                          favNewsRef.add({
-                                            "uid": firebaseAuth.currentUser!.uid
-                                                .toString(),
-                                            "title": widget.newsData.title
-                                                .toString(),
-                                            "urlToImage": widget
-                                                .newsData.urlToImage
-                                                .toString(),
-                                            "description": widget
-                                                .newsData.description
-                                                .toString(),
-                                            "content": widget.newsData.content
-                                                .toString(),
-                                            "author": widget.newsData.author
-                                                .toString(),
-                                            "url":
-                                                widget.newsData.url.toString(),
-                                          }).then((value) {
-                                            print(value);
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(const SnackBar(
-                                              content: Text(
-                                                  'News added to favourite list.'),
-                                              backgroundColor: Colors.green,
-                                            ));
-                                          }).catchError((error) {
-                                            print(error);
-                                          });
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(const SnackBar(
-                                            content: Text(
-                                                'News already exist in your favourite list.'),
-                                            backgroundColor: Colors.red,
-                                          ));
-                                        }
+                                        await firebaseFirestore
+                                            .collection('usersFavPosts')
+                                            .doc(widget.newsID)
+                                            .delete();
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                          content: Text(
+                                              'News remove from favourite list.'),
+                                          backgroundColor: Colors.red,
+                                        ));
+                                        Navigator.pop(context);
                                       } on FirebaseException catch (e) {
                                         print(e.toString());
                                       }
@@ -185,15 +149,14 @@ class _EverythingDetailArticleState extends State<EverythingDetailArticle> {
                                       ));
                                     }
                                   },
-                                  icon: Icon(Icons.favorite_border_outlined,
+                                  icon: Icon(Icons.delete_outline_outlined,
                                       size: 20.sp,
                                       color: Colors.white.withOpacity(1.0))),
                             ),
                           ),
                         ],
                       ),
-                      headingBadge(
-                          widget.newsData.source!.name.toString(), Colors.red),
+                      headingBadge('', Colors.red),
                     ],
                   ),
                 ),
@@ -226,18 +189,18 @@ class _EverythingDetailArticleState extends State<EverythingDetailArticle> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        headingBadge(widget.newsData.source!.name.toString(),
-                            Colors.black.withOpacity(0.5)),
+                        // headingBadge(widget.newsData.source!.name.toString(),
+                        //     Colors.black.withOpacity(0.5)),
                         headingBadge('Title', Colors.black),
-                        detailsText(widget.newsData.title.toString()),
+                        detailsText(widget.newsData['title']),
                         headingBadge('Description', Colors.black),
-                        detailsText(widget.newsData.description.toString()),
+                        detailsText(widget.newsData['description']),
                         headingBadge('Content', Colors.black),
-                        detailsText(widget.newsData.content.toString()),
+                        detailsText(widget.newsData['content']),
                         headingBadge('Author', Colors.black),
-                        detailsText(widget.newsData.author.toString()),
+                        detailsText(widget.newsData['author']),
                         headingBadge('Article url', Colors.black),
-                        detailsText(widget.newsData.url.toString()),
+                        detailsText(widget.newsData['url']),
                       ],
                     ),
                   ),
